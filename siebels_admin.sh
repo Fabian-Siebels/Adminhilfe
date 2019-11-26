@@ -31,6 +31,63 @@ function gelb() {
 }
 
 #--------------------------------------------------------------------------
+# Variabeln
+
+LOGFILE=admintool.log
+LOGZEIT=`date`
+
+
+#--------------------------------------------------------------------------
+# Pruefung auf Adminrechte
+# Start des Scriptes
+
+function arechte() {
+    clear
+    rot "Prüfung auf Administrationsrechte"
+    sleep 1
+    if [ `/usr/bin/id -u` != "0" ]; then
+        echo ""
+        rot "Bitte mit sudo Rechten ausführen!"
+        echo "$LOGZEIT - Tool ohne sudo Rechten gestartet" >> $LOGFILE
+        exit 0
+    else
+        auswahlfenster
+        echo "$LOGZEIT - Tool erfolgreich gestartet!" >> $LOGFILE
+    fi
+}
+
+#--------------------------------------------------------------------------
+# Auswahlfenster des Scriptes
+# Hier werden die einzelnen Tools über eine Nummer ausgewählt
+
+function auswahlfenster() {
+    clear
+    cyan "    /$$$$$$  /$$           /$$                 /$$            "
+    cyan "   /$$__  $$|__/          | $$                | $$            "
+    cyan "  | $$  \__/ /$$  /$$$$$$ | $$$$$$$   /$$$$$$ | $$  /$$$$$$$  "
+    cyan "  |  $$$$$$ | $$ /$$__  $$| $$__  $$ /$$__  $$| $$ /$$_____/  "
+    cyan "   \____  $$| $$| $$$$$$$$| $$  \ $$| $$$$$$$$| $$|  $$$$$$   "
+    cyan "   /$$  \ $$| $$| $$_____/| $$  | $$| $$_____/| $$ \____  $$  "
+    cyan "  |  $$$$$$/| $$|  $$$$$$$| $$$$$$$/|  $$$$$$$| $$ /$$$$$$$/  "
+    cyan "   \______/ |__/ \_______/|_______/  \_______/|__/|_______/   "
+    echo ""
+    gelb "                     Version 1.1.2                            "
+    echo ""
+    rot "   /=========================================================\\"
+    rot "   |*  [1]     -       Einstellen der Zeitzone Berlin (MEZ) *| "
+    rot "   |*  [*]     -       Beliebige Taste zum Beenden          *| "
+    rot "   \\========================================================/ "
+
+    read -p "Auswahl [1-XX]:" auswahl
+    case "$auswahl" in
+        1) zeitzoneyn
+            ;;
+        *) beenden
+            ;;
+    esac
+}
+
+#--------------------------------------------------------------------------
 # Auswahl der Zeitzone Ja/Nein
 # Wenn Ja function zeitzoney() Wenn Nein function auswahlfenster()
 function zeitzoneyn() {
@@ -38,7 +95,7 @@ function zeitzoneyn() {
     rot "Soll Berlin (MEZ / CEST) als Zeitzone eingestellt werden?"
     read -p "Auswahl [y/n]:" auswahl
     case "$auswahl" in
-        y) ja
+        y) zeitzoney
             ;;
         n) auswahlfenster
             ;;
@@ -48,13 +105,16 @@ function zeitzoneyn() {
 }
 
 # Einstellen der Zeitzone über einen Link zur Zeitzoneninfo
-# Es wird ein Backup der localtime erstellt, falls etwas schiefgeht
+# Es wird ein Backup der localtime erstellt, falls etwas schief geht
 function zeitzoney() {
     echo ""
     sudo mv /etc/localtime /etc/localtime.bak
     sudo ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
     gruen "Die Zeitzone wurde eingestellt!"
+    echo ""
+    echo "Neues Datum:"
     date
+    echo ""
     rot "Druecke eine beliebige Taste um zum Auswahlfenster zu wechseln"
     read -p "" auswahl
     case "$auswahl" in
@@ -65,3 +125,5 @@ function zeitzoney() {
 
 #--------------------------------------------------------------------------
 
+# Ausführung der Startfunktion arechte()
+arechte
